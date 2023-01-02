@@ -24,6 +24,11 @@ import {
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import SalariesDataTable from "../../components/Salaries/SalariesDataTable";
 import { msg } from "../../store/snackBardSlice";
+import withReactContent from "sweetalert2-react-content";
+import Swal from "sweetalert2";
+
+const MySwal = withReactContent(Swal);
+
 const Salaries = () => {
   const { salaries, employeeSalaries, isLoadingSalaries } = useAppSelector(
     (state) => state.records
@@ -36,7 +41,6 @@ const Salaries = () => {
   useEffect(() => {
     dispatch(getAllSalaries());
     dispatch(getSalaryByMonth({ month: salariesMonth }));
-    console.log(salaries);
   }, [dispatch]);
 
   const handelDateValueChangedCalculate = useCallback(
@@ -54,12 +58,37 @@ const Salaries = () => {
   );
 
   const handelCalaculateSalaries = () => {
-    dispatch(calculateSalary(calculateMonth))
-      .unwrap()
-      .then(() => {
-        dispatch(getAllSalaries());
-        dispatch(msg({ msg: "עיבוד דיווחות בוצע בהצלחה", type: "success" }));
-      });
+    MySwal.fire({
+      title: `האם אתה בטוח שרוצה לעשות עיבוד לחודש ${dayjs(
+        calculateMonth
+      ).format("YYYY-M")}`,
+      text: "פעולה זו עשויה לקחת קצת זמן",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "כן, בצע עיבוד!",
+      cancelButtonText: "בטל",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(calculateSalary(calculateMonth))
+          .unwrap()
+          .then(() => {
+            MySwal.fire({
+              title: "העיבוד הסתיים בהצלחה",
+              text: `העיבוד הסתיים בהצלחה לחודש ${dayjs(calculateMonth).format(
+                "YYYY-M"
+              )}`,
+              icon: "success",
+              confirmButtonText: "תודה!",
+            });
+            dispatch(getAllSalaries());
+          })
+          .catch(() => {
+            dispatch(msg({ msg: "עיבוד דיווחות נכשל!!", type: "error" }));
+          });
+      }
+    });
   };
 
   const handelShowSalarie = useCallback(() => {

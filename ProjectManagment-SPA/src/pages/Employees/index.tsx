@@ -52,7 +52,6 @@ const Employees = () => {
   // const shouldload = useRef<boolean>(true);
 
   useEffect(() => {
-    console.log("employees effect");
     dispatch(
       getEmployees({
         employeePerPage: ITEMS_PER_PAGE,
