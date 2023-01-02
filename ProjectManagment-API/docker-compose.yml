@@ -1,0 +1,63 @@
+version: '3.8'
+services:
+##MySQL
+  mysql:
+    restart: always
+    image: mysql:5.7
+    networks:
+      - backend
+    environment:
+     MYSQL_USER: "${DB_USER}"
+     MYSQL_PASSWORD: "${DB_PASSWORD}"
+     MYSQL_ROOT_PASSWORD: "${MYSQLDB_ROOT_PASSWORD}"
+     MYSQL_DATABASE: "${DB_SCHEMA}"
+    container_name: pms-mysql-app
+    volumes:
+      - pms-db:/var/lib/mysql
+
+##PHP MyAdmin
+  phpmyadmin:
+    restart: always
+    image: phpmyadmin/phpmyadmin:4.7
+    depends_on:
+      - mysql
+    networks:
+      - backend
+    ports:
+      - "30002:80"
+    environment:
+      - PMA_HOST=pms-mysql-app
+      - PMA_PORT= 3306
+    volumes:
+      - /sessions
+    container_name: pms-phpmyadmin-app
+##MY-APP-PMS
+  app:
+    depends_on:
+      - mysql
+    restart: always
+    build: 
+      context: .
+    image: pms/app
+    networks:
+      - frontend
+      - backend
+    environment:
+     DB_HOST: mysql
+     DB_PORT:     "${DB_PORT}"
+     MYSQLDB_USER:     "${DB_USER}"
+     MYSQLDB_PASSWORD: "${DB_PASSWORD}"
+     MYSQLDB_DATABASE:     "${DB_SCHEMA}"
+     MAX_SESSION_TIME:     "${MAX_SESSION_TIME}"
+     PORT:     "${PORT}"
+     DB_CONNECTION_LIMIT:    ${DB_CONNECTION_LIMIT}
+    volumes:
+      - ./www/:/var/www/html/
+    ports:
+      - "4000:4000"
+    container_name: pms-app
+networks:
+  frontend:
+  backend:
+volumes:
+  pms-db:
