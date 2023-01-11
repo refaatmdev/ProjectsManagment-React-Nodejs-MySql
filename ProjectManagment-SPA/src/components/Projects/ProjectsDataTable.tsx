@@ -12,12 +12,13 @@ import {
 } from "@mui/material";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
+
 import { useAppDispatch } from "../../store/hooks";
 import { IProject } from "../../_interfaces/project.interface";
 import { deleteProject } from "../../store/projectsSlice";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 const MySwal = withReactContent(Swal);
 
 interface IProjectsDataProps {

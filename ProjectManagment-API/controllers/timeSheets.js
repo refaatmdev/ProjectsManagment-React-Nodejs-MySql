@@ -3,7 +3,6 @@ const moment = require("moment");
 const connection = require("../database/index");
 
 async function getProjectWithEmoloyeeTimeSheet(projectId) {
-  const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
   const values = [projectId];
   const getProjectWithEmoloyeeTimeSheetQuery = `
 
@@ -18,6 +17,9 @@ async function getProjectWithEmoloyeeTimeSheet(projectId) {
   ${process.env.DB_SCHEMA}.employee.firstName AS firstName,
   ${process.env.DB_SCHEMA}.employee.id AS employeeId,
   ${process.env.DB_SCHEMA}.employee.lastName AS lastName,
+  ${process.env.DB_SCHEMA}.employee.firstName AS firstName,
+  ${process.env.DB_SCHEMA}.workedProjects.projectId AS projectId,
+  ${process.env.DB_SCHEMA}.workedProjects.notes AS projectNotes,
   (SELECT 
           dailywage
       FROM
@@ -51,8 +53,6 @@ FROM
 WHERE ${process.env.DB_SCHEMA}.workedProjects.projectId = ?
 GROUP BY id 
 ORDER BY date DESC   , dailyWage 
-
-
   `;
 
   const [rows] = await connection.execute(

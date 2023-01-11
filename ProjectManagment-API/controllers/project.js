@@ -19,15 +19,16 @@ async function createProject(project) {
 }
 
 async function checkIfProjectExist(id) {
-  const [rows] = await connection.execute(`SELECT * FROM ${process.env.DB_SCHEMA}.projects where id = ?`, [
-    id,
-  ]);
+  const [rows] = await connection.execute(
+    `SELECT * FROM ${process.env.DB_SCHEMA}.projects where id = ?`,
+    [id]
+  );
   return rows[0];
 }
 
 async function insertQuotationForProject(projectId, data) {
-  const { quotation, notes } = data;
-  const values = [projectId, quotation, notes];
+  const { quotation, quotationNotes } = data;
+  const values = [projectId, quotation, quotationNotes];
   const inserQuotationQuery = `INSERT INTO ${process.env.DB_SCHEMA}.project_quotation  (projectId, quotation, notes) VALUES (?, ?,?);`;
   const [rows] = await connection.execute(inserQuotationQuery, values);
   return rows;
@@ -62,6 +63,7 @@ async function editProject(updatedData, projectId) {
 async function editPaid(paidData, paidId) {
   const { paidDate, paid, method, notes } = paidData;
   const values = [paidDate, paid, method, notes, paidId];
+  console.log("values", values);
   const updatePaidQuery =
     "UPDATE `project_pays` SET `paidDate` = ?, `paid` = ?, `method` = ?, `notes` = ? WHERE (`id` = ?);";
   const [rows] = await connection.execute(updatePaidQuery, values);
@@ -69,8 +71,8 @@ async function editPaid(paidData, paidId) {
 }
 
 async function updateQuotation(quotationcData, projectId) {
-  const { quotation, notes } = quotationcData;
-  const values = [quotation, notes, projectId];
+  const { quotation, quotationNotes } = quotationcData;
+  const values = [quotation, quotationNotes, projectId];
   const updateQuotationQuery =
     "UPDATE `project_quotation` SET `quotation` = ? , `notes` = ? WHERE (`projectId` = ?);";
   const [rows] = await connection.execute(updateQuotationQuery, values);
@@ -143,7 +145,9 @@ async function getAgreementByProjectId(projectId) {
   const getAgreementByProjectIdQuery = `SELECT *
   FROM agreement 
   where projectId = ?`;
-  const [rows] = await connection.execute(getAgreementByProjectIdQuery, [projectId]);
+  const [rows] = await connection.execute(getAgreementByProjectIdQuery, [
+    projectId,
+  ]);
   if (rows.length > 0) return rows[0].imagePath;
   return;
 }
@@ -163,10 +167,60 @@ async function deleteProjectById(projectId) {
   return rows.affectedRows;
 }
 
+async function deleteProjectAgreement(projectId) {
+  const deleteQuery = "DELETE FROM agreement WHERE (projectId = ?);";
+  const [rows] = await connection.execute(deleteQuery, [projectId]);
+  return rows.affectedRows;
+}
+
 async function insertPhotoToDB(filePath, id) {
   const PhotoQuery =
     "INSERT INTO `agreement`  (`imagePath`,`projectId`) VALUES (?,?)";
   const [rows] = await connection.execute(PhotoQuery, [filePath, id]);
+  return rows.affectedRows;
+}
+async function getNotesForProject({
+  pageSize,
+  currentPage,
+  projectId,
+  noteId,
+}) {
+  const limitQuery = currentPage
+    ? `LIMIT ${pageSize * (currentPage - 1) + "," + pageSize}`
+    : "";
+  const project = projectId
+    ? `WHERE ${process.env.DB_SCHEMA}.project_notes.projectId = ${projectId}`
+    : "";
+  const id = noteId
+    ? `WHERE ${process.env.DB_SCHEMA}.project_notes.id = ${noteId}`
+    : "";
+
+  const query = `SELECT * FROM projects_managment.project_notes ${project} ${id} ${limitQuery}`;
+  const [rows] = await connection.execute(query, []);
+  return rows;
+}
+async function insertNotesForProject(data, projectId) {
+  console.log("notes data", data);
+  const { notes, createdAt } = data;
+  const values = [projectId, notes, createdAt];
+  const NotesQuery =
+    "INSERT INTO `project_notes`  (`projectId`, `notes`, `createdAt`) VALUES (?,?,?)";
+  const [rows] = await connection.execute(NotesQuery, values);
+  return rows;
+}
+
+async function deleteNotesForProject(id) {
+  const deleteQuery = "DELETE FROM project_notes WHERE (id = ?);";
+  const [rows] = await connection.execute(deleteQuery, [id]);
+  return rows.affectedRows;
+}
+
+async function updateNotesForProject(data, projectId) {
+  const { notes, createdAt, id } = data;
+  const values = [notes, createdAt, id, projectId];
+  const updateNoteQuery =
+    "UPDATE `project_notes` SET `notes` = ? , `createdAt` = ? WHERE (`id` = ?) AND (`projectId` = ?);";
+  const [rows] = await connection.execute(updateNoteQuery, values);
   return rows.affectedRows;
 }
 
@@ -174,6 +228,7 @@ async function updatePhotoToDB(filePath, projectId) {
   const PhotoQuery =
     "UPDATE agreement SET `imagePath` = ? WHERE (`projectId` =?);";
   const [rows] = await connection.execute(PhotoQuery, [filePath, projectId]);
+  console.log(rows);
   return rows.affectedRows;
 }
 
@@ -217,7 +272,7 @@ async function getProjectById(projectId) {
   ${process.env.DB_SCHEMA}.projects.updatedAt as updatedAt,
   ${process.env.DB_SCHEMA}.agreement.imagePath as agreement,
   ${process.env.DB_SCHEMA}.project_quotation.quotation as quotation,
-  ${process.env.DB_SCHEMA}.project_quotation.notes as notes,
+  ${process.env.DB_SCHEMA}.project_quotation.notes as quotationNotes,
   (SELECT 
     SUM(paid)
 FROM
@@ -249,7 +304,7 @@ async function getProjectPaids(id) {
         ${process.env.DB_SCHEMA}.project_pays.method as method,
         ${process.env.DB_SCHEMA}.project_pays.createdAt as createdAt,
         ${process.env.DB_SCHEMA}.project_pays.notes as notes,
-        ${process.env.DB_SCHEMA}.checks_imgs.checksImgPath as checksImgPath
+        ${process.env.DB_SCHEMA}.checks_imgs.checksImgPath as checkImg
         FROM ${process.env.DB_SCHEMA}.project_pays
   left join ${process.env.DB_SCHEMA}.checks_imgs
 on ${process.env.DB_SCHEMA}.checks_imgs.payId = ${process.env.DB_SCHEMA}.project_pays.id  
@@ -305,7 +360,10 @@ FROM
   ${process.env.DB_SCHEMA}.projects ON ${process.env.DB_SCHEMA}.employeesTimeSheet.projectId = ${process.env.DB_SCHEMA}.projects.id
   WHERE ${process.env.DB_SCHEMA}.projects.id = ? 
 ORDER BY date `;
-  const [rows] = await connection.execute(getProjectWithEmoloyeeTimeSheetQuery, [projectId]);
+  const [rows] = await connection.execute(
+    getProjectWithEmoloyeeTimeSheetQuery,
+    [projectId]
+  );
   return rows[0];
 }
 
@@ -330,6 +388,11 @@ module.exports = {
   getProjectsCount,
   deleteProjectById,
   insertPhotoToDB,
+  deleteProjectAgreement,
   updatePhotoToDB,
   _deleteImageFromStorage,
+  getNotesForProject,
+  insertNotesForProject,
+  updateNotesForProject,
+  deleteNotesForProject,
 };

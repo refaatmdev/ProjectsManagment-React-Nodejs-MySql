@@ -32,8 +32,10 @@ function validateEnvParams() {
 
 validateEnvParams();
 
-api.use(express.static("images"));
-api.use(express.static(path.join(__dirname, "images")));
+// api.use(express.static("images"));
+api.use("/images", express.static(__dirname + "/images"));
+
+// api.use(express.static(path.join(__dirname, "images")));
 api.use("/", express.static("public/project"));
 
 api.use(cors());
@@ -41,13 +43,13 @@ api.use(bodyParser.json());
 
 api.get("/health-check", (req, res, next) => {
   res.send("Api working");
-}); 
+});
 
 api.use("/auth", auth);
 api.use("/projects", projects);
 api.use("/employee", employee);
 api.use("/timesSheet", timesSheet);
-api.use("/company",company);
+api.use("/company", company);
 
 api.use((error, req, res, next) => {
   console.log("error handler", error);

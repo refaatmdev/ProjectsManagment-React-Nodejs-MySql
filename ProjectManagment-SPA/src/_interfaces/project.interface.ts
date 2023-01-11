@@ -9,6 +9,14 @@ export interface IProject {
   unPaid?: number;
   haregem?: number;
   agreement?: any;
+  quotationNotes?: string;
   createdAt: string;
   updatedAt?: Date;
+}
+
+export interface IProjectNotes {
+  id?: number;
+  projectId?: number;
+  notes: string;
+  createdAt: string;
 }

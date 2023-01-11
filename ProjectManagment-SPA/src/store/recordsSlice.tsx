@@ -10,10 +10,18 @@ import { IMafrea } from "../_interfaces/mafrea.interfac";
 
 const API_URL = `${BASE_URL}/timesSheet`;
 
+export interface IProjectDataTable extends IRecord {
+  dailyWage?: number;
+  projectNotes: string;
+  firstName: string;
+  lastName: string;
+}
+
 interface Iinitvalues {
   isLoadingRecords: boolean;
   records: IRecord[];
   record?: any;
+  projectRecordsDataTable: IProjectDataTable[];
   mafreaot: IMafrea[];
   isLoadingMafreaot: boolean;
   totalRecords: number;
@@ -28,6 +36,7 @@ const initalValue: Iinitvalues = {
   isLoadingRecords: false,
   records: [],
   record: undefined,
+  projectRecordsDataTable: [],
   mafreaot: [],
   isLoadingMafreaot: false,
   salaries: [],
@@ -249,6 +258,31 @@ export const getSalaryByMonth = createAsyncThunk(
   }
 );
 
+export const getRecordsByProject = createAsyncThunk(
+  "records/getRecordsByProject",
+  async (args: any, { rejectWithValue, dispatch, signal }) => {
+    const { recordsPerPage = 31, currentPage = 1, projectId } = args;
+    const queryParams = `?pagesize=${recordsPerPage}&page=${currentPage}`;
+    const source = axios.CancelToken.source();
+    signal.addEventListener("abort", () => {
+      source.cancel();
+    });
+    try {
+      const response = await axios.get(
+        `${API_URL}/${projectId}` + queryParams,
+        {
+          cancelToken: source.token,
+        }
+      );
+      console.log(response.data);
+      return response.data;
+    } catch (error: any) {
+      dispatch(msg({ msg: error.message }));
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const calculateSalary = createAsyncThunk(
   "records/calculateSalary",
   async (args: any, { rejectWithValue, signal, dispatch }) => {
@@ -260,7 +294,7 @@ export const calculateSalary = createAsyncThunk(
       const respons = await axios.post(`${API_URL}/calculateSalary/`, {
         currentMonth: args,
       });
-
+      console.log(respons.data);
       if (respons.data) return respons.data;
     } catch (error: any) {
       // dispatch(msg({ msg: error.message }));
@@ -426,6 +460,24 @@ const recordsSlice = createSlice({
         calculateSalary.rejected,
         (state, action: PayloadAction<any>) => {
           state.isLoadingSalaries = false;
+        }
+      )
+
+      .addCase(getRecordsByProject.pending, (state, action) => {
+        state.isLoadingRecords = true;
+      })
+      .addCase(
+        getRecordsByProject.fulfilled,
+        (state, action: PayloadAction<any | ResponstValues>) => {
+          state.isLoadingRecords = false;
+          console.log(action.payload);
+          state.projectRecordsDataTable = action.payload;
+        }
+      )
+      .addCase(
+        getRecordsByProject.rejected,
+        (state, action: PayloadAction<any>) => {
+          state.isLoadingRecords = false;
         }
       );
   },

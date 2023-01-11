@@ -1,33 +1,32 @@
 const multer = require("multer");
 const path = require("path");
-const fs = require('fs')
+const fs = require("fs");
 const storage = multer.diskStorage({
   destination: (_req, file, cb) => {
-    const dir = `./images/checks/${_req.body.projectId }`
-    fs.exists(dir, exist => {
-    if (!exist) {
-      return fs.mkdir(dir, error => cb(error, dir))
-    }
-    return cb(null, dir)
-    })
+    const dir = `./images/checks/${_req.body.projectId}`;
+    fs.exists(dir, (exist) => {
+      if (!exist) {
+        return fs.mkdir(dir, { recursive: true }, (error) => cb(error, dir));
+      }
+      return cb(null, dir);
+    });
   },
   filename: function (_req, file, cb) {
     if (!file) {
       cb(null, false);
       next();
-    }else{
+    } else {
       cb(
         null,
-        _req.body.projectId + "-" + _req.params.paidId + "-" +Date.now() + path.extname(file.originalname)
+        _req.body.projectId + "-" + Date.now() + path.extname(file.originalname)
       );
     }
-    
   },
 });
 var uploadCheck = multer({
   storage: storage,
   limits: {
-    files:1,
+    files: 1,
     fields: 10,
     fieldNameSize: 50, // TODO: Check if this size is enough
     fieldSize: 2 * 1024 * 1024, //TODO: Check if this size is enough

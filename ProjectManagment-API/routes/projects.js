@@ -28,6 +28,11 @@ const {
   insertPhotoToDB,
   updatePhotoToDB,
   _deleteImageFromStorage,
+  deleteProjectAgreement,
+  getNotesForProject,
+  insertNotesForProject,
+  updateNotesForProject,
+  deleteNotesForProject,
 } = require("../controllers/project");
 
 // create project
@@ -190,16 +195,10 @@ router.put(
       const getOldChekImagePath = await getCheckByPaidId(paidId);
       const result = await editPaid(req.body, paidId);
       if (!result) throw new Error("some thing went wrong with editing");
-      if (req.body.method == "check") {
-        if (req.file.path != undefined)
-          await _deleteImageFromStorage(getOldChekImagePath);
-        const getImgPath =
-          req.file.path === undefined ? getOldChekImagePath : req.file.path;
-        const insertImages = await updateCheckPhotoToDB(getImgPath, paidId);
-        console.log("insertImages", insertImages);
-        if (getOldChekImagePath === undefined)
-          await insertCheckPhotoToDB(req.file.path, paidId);
-      }
+      if (req.file) _deleteImageFromStorage(getOldChekImagePath);
+      getOldChekImagePath === undefined && req.file
+        ? await insertCheckPhotoToDB(req.file.path, paidId)
+        : await updateCheckPhotoToDB(req.file.path, paidId);
       logger.info(
         `currentTime: ${currentTime} ###### Update Paid - ${paidId} Done`
       );
@@ -220,6 +219,7 @@ router.post(
   getValidationFunction("getProjectById"),
   upload,
   async (req, res, next) => {
+    console.log(req.file);
     try {
       const checkIfExist = await checkIfProjectExist(req.params.projectId);
       if (!checkIfExist) throw new Error('Invalid Project!"');
@@ -247,12 +247,99 @@ router.post(
   }
 );
 
+router.post(
+  "/notes/:projectId",
+  getValidationFunction("getProjectById"),
+  async (req, res, next) => {
+    const projectId = req.params.projectId;
+    console.log(req.params.projectId);
+    try {
+      const checkIfExist = await checkIfProjectExist(req.params.projectId);
+      if (!checkIfExist) throw new Error('Invalid Project!"');
+      const result = await insertNotesForProject(
+        req.body,
+        req.params.projectId
+      );
+      res.json(result);
+    } catch (ex) {
+      logger.error(
+        `currentTime: ${currentTime} ###### Create Note for project - ${req.params.projectId}- ${ex.message} failed`
+      );
+      next({ message: ex.message, status: 400 });
+    }
+  }
+);
+router.get(
+  "/notes/:projectId",
+  getValidationFunction("getProjectById"),
+  async (req, res, next) => {
+    const projectId = req.params.projectId;
+    console.log(req.params.projectId);
+    try {
+      const result = await getNotesForProject({ projectId: projectId });
+      res.json({
+        result,
+      });
+    } catch (ex) {
+      logger.error(
+        `currentTime: ${currentTime} ###### Create Note for project - ${req.params.projectId}- ${ex.message} failed`
+      );
+      next({ message: ex.message, status: 400 });
+    }
+  }
+);
+router.put(
+  "/notes/:projectId",
+  getValidationFunction("getProjectById"),
+  async (req, res, next) => {
+    const projectId = req.params.projectId;
+    try {
+      const checkIfExist = await checkIfProjectExist(req.params.projectId);
+      if (!checkIfExist) throw new Error('Invalid Project!"');
+      const checlIfNoteISExist = await getNotesForProject({
+        projectId: req.params.projectId,
+      });
+      const result = await updateNotesForProject(
+        req.body,
+        req.params.projectId
+      );
+      res.json("result");
+    } catch (ex) {
+      logger.error(
+        `currentTime: ${currentTime} ###### update Note for project - ${req.params.projectId}- ${ex.message} failed`
+      );
+      next({ message: ex.message, status: 400 });
+    }
+  }
+);
+router.delete(
+  "/notes/:projectId/:id",
+  getValidationFunction("getProjectNotesId"),
+  async (req, res, next) => {
+    const { projectId, id } = req.params;
+    try {
+      const checkIfExist = await getNotesForProject({
+        projectId: projectId,
+        id: id,
+      });
+      if (!checkIfExist) throw new Error('Invalid Project!"');
+      const result = await deleteNotesForProject(id);
+      console.log(result);
+      if (result) res.json({ msg: "note have been deleted" });
+    } catch (ex) {
+      logger.error(
+        `currentTime: ${currentTime} ###### Delete Note for project - ${projectId}- ${ex.message} failed`
+      );
+      next({ message: ex.message, status: 400 });
+    }
+  }
+);
+
 router.put(
   "/updateQuotation/:projectId",
   getValidationFunction("getProjectById"),
   upload,
   async (req, res, next) => {
-    // const { projectId } = req.params.projectId;
     try {
       const checkIfExist = await checkIfProjectExist(req.params.projectId);
       if (!checkIfExist) throw new Error('Invalid Project!"');
@@ -261,17 +348,10 @@ router.put(
       const getOldImagePath = await getAgreementByProjectId(
         req.params.projectId
       );
-      if (req.file) {
-        await _deleteImageFromStorage(getOldImagePath);
-        const getImgPath =
-          req.file.path === undefined ? getOldImagePath : req.file.path;
-        const insertImages = await updatePhotoToDB(
-          getImgPath,
-          req.params.projectId
-        );
-      }
-      if (getOldImagePath === undefined && req.file)
-        await insertPhotoToDB(req.file.path, req.params.projectId);
+      if (req.file) _deleteImageFromStorage(getOldImagePath);
+      getOldImagePath === undefined && req.file
+        ? await insertPhotoToDB(req.file.path, req.params.projectId)
+        : await updatePhotoToDB(req.file.path, req.params.projectId);
       logger.info(
         `currentTime: ${currentTime} ###### Update Quotation for project - ${req.params.projectId} Done`
       );
@@ -280,7 +360,7 @@ router.put(
       logger.error(
         `currentTime: ${currentTime} ######  Update Quotation for project - ${req.params.projectId}- ${ex.message}`
       );
-      next({ message: ex.message, status: 400 });
+      next({ message: "url : " + req.url + " " + ex.message, status: 400 });
     }
   }
 );
@@ -296,6 +376,34 @@ router.delete(
       if (!checkIfProjectExist) throw new Error("Invalid project");
       const result = await deleteProjectById(projectId);
       if (!result) throw new Error("error in deleteing project");
+      console.log(checkIfProjectExist.agreement);
+      const deleteImage = _deleteImageFromStorage(
+        checkIfProjectExist.agreement
+      );
+      logger.info(
+        `currentTime: ${currentTime} ###### delete project - ${req.params.projectId} Done`
+      );
+      res.status(200).json(`you have deleted projectId ${projectId}`);
+    } catch (ex) {
+      logger.error(
+        `currentTime: ${currentTime} ######  delete project - ${req.params.projectId} - ${ex.message}`
+      );
+      return next({ message: ex.message, status: 400 });
+    }
+  }
+);
+
+router.delete(
+  "/agreement/:projectId",
+  getValidationFunction("getProjectById"),
+  async (req, res, next) => {
+    const projectId = req.params.projectId;
+    console.log("req.params.projectId", req.params.projectId);
+    try {
+      const checkIfProjectExist = await getProjectById(projectId);
+      if (!checkIfProjectExist) throw new Error("Invalid project");
+      const result = await deleteProjectAgreement(projectId);
+      if (!result) throw new Error("error in deleteing agreement");
       console.log(checkIfProjectExist.agreement);
       const deleteImage = _deleteImageFromStorage(
         checkIfProjectExist.agreement

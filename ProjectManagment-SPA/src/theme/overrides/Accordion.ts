@@ -13,6 +13,7 @@ export default function Accordion(theme: Theme) {
       },
       styleOverrides: {
         root: {
+          fontSize: "11px",
           border: `1px solid ${theme.palette.secondary.light}`,
           "&:not(:last-child)": {
             borderBottom: 0,

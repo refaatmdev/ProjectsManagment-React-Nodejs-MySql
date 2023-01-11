@@ -59,6 +59,16 @@ const SelectF = ({ label, name, options, fullWidth }: FormControlProps) => {
                     </MenuItem>
                   );
                 })}
+
+              {options &&
+                name == "method" &&
+                options.map((o: any) => {
+                  return (
+                    <MenuItem key={o.label} value={o.value}>
+                      {o.label}
+                    </MenuItem>
+                  );
+                })}
             </Select>
             <FormHelperText id={name} error>
               {typeof error === "string" && touch ? error.toString() : null}

@@ -18,7 +18,7 @@ import { msg } from "../../store/snackBardSlice";
 import { useAppDispatch } from "../../store/hooks";
 import dayjs from "dayjs";
 
-interface ProjectAction {
+export interface ProjectAction {
   data?: IProject;
   show: boolean;
   handelClose: () => void;

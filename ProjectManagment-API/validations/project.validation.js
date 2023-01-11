@@ -20,13 +20,19 @@ const getProjectByIdSchema = Joi.object().keys({
   projectId: Joi.string().required(),
 });
 
+const getProjectNotesId = Joi.object().keys({
+  projectId: Joi.string().required(),
+  id: Joi.string().required(),
+});
+
 const createPaidSchema = Joi.object().keys({
   paidDate: Joi.string().required(),
   projectId: Joi.string().required(),
   paid: Joi.number().required(),
   method: Joi.string().required(),
-  notes: Joi.string().allow(null, '').optional(),
+  notes: Joi.string().allow(null, "").optional(),
   file: Joi.optional(),
+  checkImg: Joi.optional(),
   createdAt: Joi.date().optional(),
 });
 
@@ -49,7 +55,7 @@ const validationsObj = {
   },
 
   updateProject: (req, res, next) => {
-      const { error } = updateProjectSchema.validate(req.body);
+    const { error } = updateProjectSchema.validate(req.body);
     if (error) {
       console.log(error.details);
       return next(error.details);
@@ -58,6 +64,14 @@ const validationsObj = {
   },
   getProjectById: (req, res, next) => {
     const { error } = getProjectByIdSchema.validate(req.params);
+    if (error) {
+      console.log(error.details);
+      return next(error.details);
+    }
+    return next();
+  },
+  getProjectNotesId: (req, res, next) => {
+    const { error } = getProjectNotesId.validate(req.params);
     if (error) {
       console.log(error.details);
       return next(error.details);
@@ -89,7 +103,6 @@ const validationsObj = {
     }
     return next();
   },
- 
 };
 
 function getValidationFunction(path) {

@@ -15,6 +15,7 @@ import RadioC from "./CustomInputs/Radio";
 import TimePicker from "./CustomInputs/TimePicker";
 import AutoComplete from "./CustomInputs/AutoComplete";
 import { IProject } from "../../../../_interfaces/project.interface";
+import InputFile from "./CustomInputs/InputFile";
 
 interface FormikProps {
   control: string;
@@ -48,6 +49,8 @@ function FormikControl({
       return <TimePicker {...rest} />;
     case "autoComplete":
       return options ? <AutoComplete options={options} {...rest} /> : null;
+    case "inputFile":
+      return <InputFile {...rest} />;
 
     default:
       return null;
