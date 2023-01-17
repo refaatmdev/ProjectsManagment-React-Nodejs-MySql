@@ -34,7 +34,9 @@ const {
   updateNotesForProject,
   deleteNotesForProject,
 } = require("../controllers/project");
+const { protect } = require("../controllers/jwt");
 
+router.use(protect);
 // create project
 router.post("/", getValidationFunction("project"), async (req, res, next) => {
   try {

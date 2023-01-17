@@ -35,8 +35,9 @@ const { calc } = require("../_helper/timesheetCalc");
 const router = express.Router();
 const logger = require("../logger");
 const moment = require("moment");
+const { protect } = require("../controllers/jwt");
 const currentTime = moment().utc();
-
+router.use(protect);
 router.get(
   "/",
   getValidationFunctionTimeSheet("getTimeSheetRecorda"),

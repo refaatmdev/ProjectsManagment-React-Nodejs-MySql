@@ -13,9 +13,16 @@ import {
 } from "../store/services/Projects.services";
 import Breadcrumbs from "./Breadcrumbs";
 import { getEmployees } from "../store/employeesSlice";
+import { selectIsLoggedIn } from "../store/authSlice";
+import useRedirectLoggedOutUser from "../customHook/useRedirectLoggedOutUser";
 
 const MainLayout = () => {
+  // useRedirectLoggedOutUser();
+
   const dispatch = useAppDispatch();
+
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -23,9 +30,13 @@ const MainLayout = () => {
 
   useEffect(() => {
     console.log("mainLayout dispatch");
-    dispatch(getProjects({}));
-    dispatch(getEmployees({}));
-  }, [dispatch]);
+    {
+      if (isLoggedIn) {
+        dispatch(getProjects({}));
+        dispatch(getEmployees({}));
+      }
+    }
+  }, [dispatch, isLoggedIn]);
 
   return (
     <Box sx={{ display: "flex" }}>

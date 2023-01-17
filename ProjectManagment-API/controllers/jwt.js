@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const authSec = require("./../config/auth.config");
 const { isUserRegistered } = require("../controllers/users");
+const asyncHandler = require("express-async-handler");
 
 async function signJWT(data) {
   return new Promise((resolve, reject) => {
@@ -17,6 +18,38 @@ async function signJWT(data) {
     );
   });
 }
+
+const generateToken = (email) => {
+  return jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "4h" });
+};
+
+const protect = asyncHandler(async (req, res, next) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      res.status(401);
+      throw new Error("Not authorized, please login");
+    }
+
+    // Verify token
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    // Get user id from token
+    const user = await isUserRegistered(verified.email);
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+    if (user.role === "suspended") {
+      res.status(400);
+      throw new Error("User suspended, please contact support");
+    }
+
+    req.user = user;
+    next();
+  } catch (ex) {
+    return next({ message: ex.message, status: 401 });
+  }
+});
 
 async function verifyToken(req, res, next) {
   if (!req.headers["x-access-token"]) {
@@ -53,4 +86,4 @@ async function isAdmin(req, res, next) {
     return;
   }
 }
-module.exports = { signJWT, isAdmin, verifyToken };
+module.exports = { signJWT, isAdmin, verifyToken, generateToken, protect };

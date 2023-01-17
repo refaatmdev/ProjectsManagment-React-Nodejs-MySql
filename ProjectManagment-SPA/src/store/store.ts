@@ -1,4 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
+import authSlice from "./authSlice";
 import employeesSlice from "./employeesSlice";
 import projectsSlice from "./projectsSlice";
 import recordsSlice from "./recordsSlice";
@@ -9,6 +10,7 @@ export const store = configureStore({
     records: recordsSlice,
     projects: projectsSlice,
     snackBardSlice: snackBardSlice,
+    auth: authSlice,
   },
 });
 

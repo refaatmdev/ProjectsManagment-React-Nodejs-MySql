@@ -15,6 +15,9 @@ import React, { useState } from "react";
 import { Plumbing, Mail, Notifications } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { grey } from "@mui/material/colors";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../store/hooks";
+import { logout } from "../store/authSlice";
 
 const StyledToolBar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
@@ -43,6 +46,14 @@ interface INavBarProps {
 }
 const Navbar = ({ handleDrawerToggle }: INavBarProps) => {
   const [open, setOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const logoutUser = async () => {
+    await dispatch(logout());
+    navigate("/auth/login");
+  };
+
   return (
     <AppBar
       position="fixed"
@@ -113,7 +124,7 @@ const Navbar = ({ handleDrawerToggle }: INavBarProps) => {
           >
             <MenuItem>Profile</MenuItem>
             <MenuItem>My account</MenuItem>
-            <MenuItem>Logout</MenuItem>
+            <MenuItem onClick={logoutUser}>Logout</MenuItem>
           </Menu>
         </ActionsBar>
       </StyledToolBar>

@@ -1,15 +1,12 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
-const path = require("path");
-
-const cors = require("cors");
-
+const cookieParser = require("cookie-parser");
 const api = express();
-
+const cors = require("cors");
 const logger = require("./logger");
 
-const auth = require("./routes/login");
+const auth = require("./routes/auth");
 const projects = require("./routes/projects");
 const employee = require("./routes/employee");
 const timesSheet = require("./routes/timeSheets");
@@ -32,14 +29,21 @@ function validateEnvParams() {
 
 validateEnvParams();
 
-// api.use(express.static("images"));
 api.use("/images", express.static(__dirname + "/images"));
 
-// api.use(express.static(path.join(__dirname, "images")));
 api.use("/", express.static("public/project"));
 
-api.use(cors());
+api.use(express.json());
+api.use(express.urlencoded({ extended: false }));
+api.use(cookieParser());
 api.use(bodyParser.json());
+
+api.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    credentials: true,
+  })
+);
 
 api.get("/health-check", (req, res, next) => {
   res.send("Api working");

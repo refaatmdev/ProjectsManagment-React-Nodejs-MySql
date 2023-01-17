@@ -14,7 +14,9 @@ const {
   deleteEmployeeById,
   addDailyWage,
 } = require("../controllers/employee");
+const { protect } = require("../controllers/jwt");
 
+router.use(protect);
 //create new employee
 router.post(
   "/",

@@ -3,9 +3,8 @@ import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturi
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import MoneyOffIcon from "@mui/icons-material/MoneyOff";
 export const menuItems = [
-  { id: 1, label: "דף הבית", icon: HomeIcon, link: "/" },
+  { id: 1, label: "דף הבית", icon: HomeIcon, link: "/Dashboard" },
   {
     id: 2,
     label: "פרוייקטים",
