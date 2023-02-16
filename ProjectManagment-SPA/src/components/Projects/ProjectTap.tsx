@@ -1,7 +1,5 @@
 import { EditOutlined, PhoneOutlined } from "@mui/icons-material";
 import {
-  Box,
-  Chip,
   Divider,
   Grid,
   IconButton,

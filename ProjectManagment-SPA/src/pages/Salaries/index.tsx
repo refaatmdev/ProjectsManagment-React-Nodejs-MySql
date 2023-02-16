@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  Box,
   Button,
   Grid,
-  Pagination,
   Typography,
   TextField,
   Stack,
@@ -98,7 +96,6 @@ const Salaries = () => {
   return (
     <>
       <Grid container rowSpacing={4.5} columnSpacing={3}>
-        {/* <Grid container spacing={3}> */}
         <Grid item xs={12} lg={6} md={6}>
           <MainCard
             title="עיבוד משכורות"
@@ -158,14 +155,6 @@ const Salaries = () => {
             </Stack>
           </MainCard>
         </Grid>
-        {/* <Grid
-          item
-          md={8}
-          sx={{ display: { sm: "none", md: "block", lg: "none" } }}
-        /> */}
-
-        {/* </Grid> */}
-        {/* <Grid container spacing={3}> */}
         <Grid item xs={12} md={4}>
           <MainCard
             title="סיכום משכורות"
@@ -187,7 +176,6 @@ const Salaries = () => {
               <SalariesDataTable path="Employees" data={employeeSalaries} />
             )}
           </MainCard>
-          {/* </Grid> */}
         </Grid>
       </Grid>
     </>

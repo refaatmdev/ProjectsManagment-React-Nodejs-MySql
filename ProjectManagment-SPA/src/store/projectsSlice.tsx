@@ -327,7 +327,6 @@ export const addProjectPaids = createAsyncThunk(
     if (checkImg) paidsData.append("checkImg", checkImg);
     paidsData.append("method", method);
     paidsData.append("notes", notes);
-    console.log(paidsData);
     try {
       const response = await axios.post(`${API_URL}/paids/`, paidsData, {
         cancelToken: source.token,
@@ -360,7 +359,6 @@ export const updateProjectPaids = createAsyncThunk(
     if (checkImg) paidsData.append("checkImg", checkImg);
     paidsData.append("method", method);
     paidsData.append("notes", notes);
-    console.log(id);
     try {
       const response = await axios.put(`${API_URL}/paid/${id}`, paidsData, {
         cancelToken: source.token,
@@ -567,9 +565,6 @@ const projectsSlice = createSlice({
         getProjectPaids.fulfilled,
         (state, action: PayloadAction<any>) => {
           state.isLoading = false;
-
-          console.log(action.payload);
-
           state.projectPaids = action.payload.paids;
         }
       )

@@ -274,7 +274,6 @@ export const getRecordsByProject = createAsyncThunk(
           cancelToken: source.token,
         }
       );
-      console.log(response.data);
       return response.data;
     } catch (error: any) {
       dispatch(msg({ msg: error.message }));
@@ -294,7 +293,6 @@ export const calculateSalary = createAsyncThunk(
       const respons = await axios.post(`${API_URL}/calculateSalary/`, {
         currentMonth: args,
       });
-      console.log(respons.data);
       if (respons.data) return respons.data;
     } catch (error: any) {
       // dispatch(msg({ msg: error.message }));
@@ -470,7 +468,6 @@ const recordsSlice = createSlice({
         getRecordsByProject.fulfilled,
         (state, action: PayloadAction<any | ResponstValues>) => {
           state.isLoadingRecords = false;
-          console.log(action.payload);
           state.projectRecordsDataTable = action.payload;
         }
       )

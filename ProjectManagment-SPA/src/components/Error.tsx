@@ -2,7 +2,6 @@ import React, { PropsWithChildren } from "react";
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { useAppSelector } from "../store/hooks";
 
 const MySwal = withReactContent(Swal);
 interface errorProps extends PropsWithChildren {

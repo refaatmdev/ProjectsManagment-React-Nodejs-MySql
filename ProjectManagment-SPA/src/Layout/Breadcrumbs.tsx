@@ -19,6 +19,10 @@ const BreadcrumbsApp = () => {
         return "עובדים";
       case "Projects":
         return "פרוייקטים";
+      case "Reports":
+        return "דיווח שעות";
+      case "Salaries":
+        return "משכורות";
       default:
         return null;
     }
@@ -46,13 +50,13 @@ const BreadcrumbsApp = () => {
         aria-label="breadcrumb"
         style={{ marginBottom: 15 }}
       >
-        <Link
+        {/* <Link
           color="inherit"
           onClick={() => navigate("/")}
           style={{ cursor: "pointer" }}
         >
           דף הבית
-        </Link>
+        </Link> */}
         {currentRoutes.length === 1 ? (
           <Typography color="textPrimary">
             {translateRoutToHebswitch(currentRoutes[0])}

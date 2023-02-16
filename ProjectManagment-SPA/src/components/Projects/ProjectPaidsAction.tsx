@@ -1,5 +1,4 @@
 import React from "react";
-import { IProject } from "../../_interfaces/project.interface";
 import * as Yup from "yup";
 import {
   Box,
@@ -15,10 +14,8 @@ import {
 import { Form, Formik, FormikProps } from "formik";
 import FormikControl from "../customizeComponents/FormikForm/FormikControler/FormikControl";
 import {
-  addNewProject,
   addProjectPaids,
   getProjectPaids,
-  updateProject,
   updateProjectPaids,
 } from "../../store/projectsSlice";
 import { msg } from "../../store/snackBardSlice";

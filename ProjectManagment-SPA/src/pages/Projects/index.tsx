@@ -1,12 +1,18 @@
 import {
   Box,
-  Button,
   Grid,
   IconButton,
+  InputBase,
   Pagination,
   Stack,
 } from "@mui/material";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import MainCard from "../../components/customizeComponents/MainCard";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import theme from "../../theme/theme";
@@ -64,13 +70,19 @@ function Projects() {
     setCurrentPage((prev) => (prev = page));
   };
 
+  const handelSearchValueChanged = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      e.preventDefault();
+      setSearchValue(e.target.value);
+    },
+    [searchValue]
+  );
+
   return (
     <>
       <Grid container>
         <Grid container direction="column">
-          <Grid item sx={{ marginBottom: "1rem" }}>
-            {/* <Typography variant="h5">עובדים</Typography> */}
-          </Grid>
+          <Grid item sx={{ marginBottom: "1rem" }}></Grid>
         </Grid>
       </Grid>
       <Grid container spacing={2} sx={{ my: 1 }}>
@@ -85,7 +97,6 @@ function Projects() {
                 </Stack>
               }
               mainColor={theme.palette.primary.light}
-              // secondary={<PeopleOutlineIcon fontSize="large" />}
               border={false}
               content={false}
             ></MainCard>
@@ -100,7 +111,6 @@ function Projects() {
                 </Stack>
               }
               mainColor={theme.palette.success.light}
-              // secondary={<PeopleIcon fontSize="large" />}
               border={false}
               content={false}
             ></MainCard>
@@ -115,7 +125,6 @@ function Projects() {
                 </Stack>
               }
               mainColor={theme.palette.error.light}
-              // secondary={<PersonOffIcon fontSize="large" />}
               border={false}
               content={false}
             ></MainCard>
@@ -134,11 +143,12 @@ function Projects() {
               </IconButton>
             }
           >
-            {/* <Search>
-              <FilterEmployees
-                handelSearchValueChanged={handelSearchValueChanged}
+            <Box sx={{ with: "100%", padding: "10px 10px" }}>
+              <InputBase
+                placeholder="הכנס שם פרויקט"
+                onChange={handelSearchValueChanged}
               />
-            </Search> */}
+            </Box>
 
             {isLoading ? (
               "loading..."

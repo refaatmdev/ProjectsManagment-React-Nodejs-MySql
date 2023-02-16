@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React from "react";
 
 import { Link } from "react-router-dom";
 
@@ -6,10 +6,6 @@ import { Link } from "react-router-dom";
 import { Grid, Stack, Typography } from "@mui/material";
 import AuthWrapper from "../../components/Auth/AuthWrapper";
 import LoginForm from "../../components/Auth/LoginForm";
-
-// project import
-
-// ================================|| LOGIN ||================================ //
 
 const Login = () => {
   return (

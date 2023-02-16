@@ -6,12 +6,19 @@ import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import AddReports from "../../components/Reports/AddReports";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { getAllRecords, getMafreaot } from "../../store/recordsSlice";
+import {
+  addRecord,
+  getAllRecords,
+  getMafreaot,
+  updateRecord,
+} from "../../store/recordsSlice";
 import { EmployeeTimeSheetDataTable } from "../../components/Employees/EmployeeTimeSheetDataTable";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
 import EmployeeAction from "../../components/Employees/EmployeeAction";
 import FilterTap from "../../components/Employees/FilterTap";
 import MafreaotDataTable from "../../components/Reports/MafreaotDataTable";
+import { IRecord } from "../../_interfaces/record.interface";
+import { msg } from "../../store/snackBardSlice";
 const Reports = () => {
   const {
     totalRecords,
@@ -24,39 +31,101 @@ const Reports = () => {
 
   const [open, setOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(
-    dayjs().format("YYYY-MM-DD")
+    dayjs(localStorage.getItem("pmr_savedDate")).format("YYYY-MM-DD")
   );
 
-  const ITEMS_PER_PAGE = 50;
+  const ITEMS_PER_PAGE = 30;
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [show, setShow] = useState(false);
   const handleClose = useCallback(() => setShow(false), [show]);
-  const [month, setMonth] = useState(dayjs().format("YYYY-MM-DD"));
+
   useEffect(() => {
-    dispatch(
-      getAllRecords({
-        recordsPerPage: ITEMS_PER_PAGE,
-        currentPage: currentPage,
-        month: currentMonth,
-      })
-    );
-    dispatch(
-      getMafreaot({
-        recordsPerPage: ITEMS_PER_PAGE,
-        currentPage: currentPage,
-        month: currentMonth,
-      })
-    );
+    if (
+      !dayjs(
+        localStorage.getItem("pmr_savedDate"),
+        "YYYY-MM-DD HH:mm:ss",
+        true
+      ).isValid()
+    ) {
+      localStorage.setItem(
+        "pmr_savedDate",
+        dayjs().format("YYYY-MM-DD HH:mm:ss")
+      );
+      setCurrentMonth(
+        dayjs(localStorage.getItem("pmr_savedDate")).format(
+          "YYYY-MM-DD HH:mm:ss"
+        )
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (dayjs(currentMonth).isValid()) {
+      dispatch(
+        getAllRecords({
+          recordsPerPage: ITEMS_PER_PAGE,
+          currentPage: currentPage,
+          month: currentMonth,
+        })
+      );
+      dispatch(
+        getMafreaot({
+          recordsPerPage: ITEMS_PER_PAGE,
+          currentPage: currentPage,
+          month: currentMonth,
+        })
+      );
+    }
   }, [dispatch, currentMonth, currentPage]);
+
+  const handelAddNewRecords = useCallback((newData: IRecord) => {
+    dispatch(addRecord(newData))
+      .unwrap()
+      .then(() => {
+        console.log(currentMonth);
+        dispatch(
+          getAllRecords({
+            recordsPerPage: ITEMS_PER_PAGE,
+            currentPage: currentPage,
+            month: currentMonth,
+          })
+        );
+        dispatch(msg({ msg: "הוספת דיווח בהצלחה", type: "success" }));
+        handelClose();
+      })
+      .catch((error: any) => dispatch(msg({ msg: error, type: "error" })));
+  }, []);
+
+  const handelEditRecords = useCallback((newData: IRecord) => {
+    console.log(newData);
+    dispatch(updateRecord(newData))
+      .unwrap()
+      .then(() => {
+        dispatch(
+          getAllRecords({
+            recordsPerPage: ITEMS_PER_PAGE,
+            currentPage: currentPage,
+            month: currentMonth,
+          })
+        );
+        dispatch(msg({ msg: "עדכון דיווח בהצלחה", type: "success" }));
+        handelClose();
+      })
+      .catch((error: any) => dispatch(msg({ msg: error, type: "error" })));
+  }, []);
 
   const handelClose = useCallback(() => {
     setOpen(false);
   }, [open]);
 
-  const TimesheetMemo = useMemo(
-    () => <EmployeeTimeSheetDataTable records={records} employee={null} />,
-    [records]
-  );
+  const TimesheetMemo = useMemo(() => {
+    if (records.length < 0) return;
+    let sorted = [...records];
+    sorted.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    return <EmployeeTimeSheetDataTable records={sorted} employee={null} />;
+  }, [records]);
 
   const MafreaotDataTableMemo = useMemo(
     () => <MafreaotDataTable data={mafreaot} />,
@@ -65,7 +134,16 @@ const Reports = () => {
 
   const handelFilterDate = useCallback(
     (e: any) => {
-      setCurrentMonth(dayjs(e).format("YYYY-MM-DD HH:mm:ss"));
+      localStorage.setItem(
+        "pmr_savedDate",
+        dayjs(e).format("YYYY-MM-DD HH:mm:ss")
+      );
+      setCurrentMonth(
+        dayjs(localStorage.getItem("pmr_savedDate")).format(
+          "YYYY-MM-DD HH:mm:ss"
+        )
+      );
+      // setCurrentMonth(dayjs(e).format("YYYY-MM-DD HH:mm:ss"));
     },
     [currentMonth]
   );
@@ -75,7 +153,14 @@ const Reports = () => {
   };
 
   const reportActionMemo = useMemo(
-    () => <AddReports open={open} handelClose={handelClose} />,
+    () => (
+      <AddReports
+        handelAddNewRecords={handelAddNewRecords}
+        handelEditRecords={handelEditRecords}
+        open={open}
+        handelClose={handelClose}
+      />
+    ),
     [open]
   );
 
@@ -96,7 +181,6 @@ const Reports = () => {
         <Grid item xs={12} sm={5} md={4} lg={3}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
-              {/* <ProfileTap employee={employee} /> */}
               <MainCard
                 title=" הוספת דיווח חדש"
                 mainColor={theme.palette.success.light}
@@ -113,8 +197,6 @@ const Reports = () => {
                 title=" מפרעות"
                 mainColor={theme.palette.error.light}
                 secondary={<MoneyOffIcon fontSize="small" />}
-                //   border={false}
-                //   content={false}
                 contentSX={{ display: "flex", justifyContent: "center" }}
               >
                 <Button variant="contained" onClick={() => setShow(true)}>
@@ -124,10 +206,7 @@ const Reports = () => {
               </MainCard>
             </Grid>
             <Grid item xs={12}>
-              <FilterTap
-                handelDateValueChanged={handelFilterDate}
-                value={currentMonth}
-              />
+              <FilterTap handelDateValueChanged={handelFilterDate} />
             </Grid>
           </Grid>
         </Grid>
@@ -158,9 +237,6 @@ const Reports = () => {
             </Grid>
           </Grid>
         </Grid>
-        {/* <Grid item xs={12} sm={7} md={8} lg={9}>
-          
-        </Grid> */}
       </Grid>
       {reportActionMemo}
     </>

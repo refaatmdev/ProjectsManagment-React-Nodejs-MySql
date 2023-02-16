@@ -1,9 +1,6 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { IEmployee } from "../_interfaces/emplyee.interface";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { BASE_URL } from "../config";
-import { IRecord } from "../_interfaces/record.interface";
-import { AlertProps } from "@mui/material";
 import { IUser } from "../_interfaces/auth.interface";
 
 export const API_URL = `${BASE_URL}/auth`;
@@ -12,7 +9,6 @@ interface Iinitvalues {
   isLoggedIn: boolean;
   user: IUser | null;
   users: [];
-  // twoFactor: boolean,
   isError: boolean;
   isSuccess: boolean;
   isLoading: boolean;
@@ -23,7 +19,6 @@ const initalValue: Iinitvalues = {
   isLoggedIn: false,
   user: null,
   users: [],
-  //twoFactor: false,
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -42,7 +37,6 @@ export const login = createAsyncThunk(
       const response = await axios.post(`${API_URL}/login`, userData, {
         cancelToken: source.token,
       });
-      console.log(response);
       if (response.data) return response.data;
     } catch (error: any) {
       const message =
@@ -68,7 +62,6 @@ export const logout = createAsyncThunk(
       const response = await axios.post(`${API_URL}/logout`, {
         cancelToken: source.token,
       });
-      console.log(response);
       if (response.data) return response.data;
     } catch (error: any) {
       const message =
@@ -91,7 +84,6 @@ export const getLoginStatus = createAsyncThunk(
       source.cancel();
     });
     try {
-      console.log("getLoginStatuss");
       const response = await axios.get(`${API_URL}/loginStatus`, {
         cancelToken: source.token,
       });
@@ -136,17 +128,7 @@ export const getUser = createAsyncThunk(
 const authdSlice = createSlice({
   name: "auth",
   initialState: initalValue,
-  reducers: {
-    // msg: (state, action: PayloadAction<any>) => {
-    //   console.log(action);
-    //   state.open = true;
-    //   state.msg = action.payload.msg;
-    //   state.type = action.payload.type;
-    // },
-    // close: (state) => {
-    //   state.open = false;
-    // },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       // Login User
@@ -158,18 +140,12 @@ const authdSlice = createSlice({
         state.isSuccess = true;
         state.isLoggedIn = true;
         state.user = action.payload;
-        // toast.success("Login Successful");
-        console.log(action.payload);
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
         state.user = null;
-        // toast.error(action.payload);
-        // if (action.payload.includes("New browser")) {
-        //   state.twoFactor = true;
-        // }
       })
       // Logout User
       .addCase(logout.pending, (state) => {
@@ -180,13 +156,11 @@ const authdSlice = createSlice({
         state.isSuccess = true;
         state.isLoggedIn = false;
         state.user = null;
-        // toast.success(action.payload);
       })
       .addCase(logout.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
-        // toast.error(action.payload);
       })
 
       // Get Login Status
@@ -202,7 +176,6 @@ const authdSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
-        console.log(action.payload);
       })
       // Get User
       .addCase(getUser.pending, (state) => {
@@ -218,11 +191,9 @@ const authdSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
-        // toast.error(action.payload);
       });
   },
 });
-// export const { msg, close } = authdSlice.actions;
 export const selectIsLoggedIn = (state: any) => state.auth.isLoggedIn;
 export const selectUser = (state: any) => state.auth.user;
 export default authdSlice.reducer;

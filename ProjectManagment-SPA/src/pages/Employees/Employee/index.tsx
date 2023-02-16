@@ -131,10 +131,7 @@ const Employee = () => {
                     <ProfileTap employee={employee} />
                   </Grid>
                   <Grid item xs={12}>
-                    <FilterTap
-                      handelDateValueChanged={handelFilterDate}
-                      value={month}
-                    />
+                    <FilterTap handelDateValueChanged={handelFilterDate} />
                   </Grid>
                   <Grid item xs={12}>
                     <DownloadTimeSheetAsPdf

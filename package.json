@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "cookie-parser": "^1.4.6",
-    "express-async-handler": "^1.2.0"
-  }
-}

@@ -1,8 +1,6 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { IEmployee } from "../_interfaces/emplyee.interface";
-import axios from "axios";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
 import { BASE_URL } from "../config";
-import { IRecord } from "../_interfaces/record.interface";
 import { AlertProps } from "@mui/material";
 
 const API_URL = `${BASE_URL}/timesSheet`;
@@ -24,7 +22,6 @@ const snackBardSlice = createSlice({
   initialState: initalValue,
   reducers: {
     msg: (state, action: PayloadAction<any>) => {
-      console.log(action);
       state.open = true;
       state.msg = action.payload.msg;
       state.type = action.payload.type;

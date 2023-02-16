@@ -3,22 +3,15 @@ import React, { useEffect, useState } from "react";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
-import { Outlet, useLocation, useMatches } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { sideBarWidth } from "./config";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { getProjects } from "../store/projectsSlice";
-import {
-  getProjectsFromLocalStorage,
-  setProjectsToLocalStorage,
-} from "../store/services/Projects.services";
 import Breadcrumbs from "./Breadcrumbs";
 import { getEmployees } from "../store/employeesSlice";
 import { selectIsLoggedIn } from "../store/authSlice";
-import useRedirectLoggedOutUser from "../customHook/useRedirectLoggedOutUser";
 
 const MainLayout = () => {
-  // useRedirectLoggedOutUser();
-
   const dispatch = useAppDispatch();
 
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
@@ -29,7 +22,6 @@ const MainLayout = () => {
   };
 
   useEffect(() => {
-    console.log("mainLayout dispatch");
     {
       if (isLoggedIn) {
         dispatch(getProjects({}));

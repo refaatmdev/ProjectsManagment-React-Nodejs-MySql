@@ -1,4 +1,5 @@
 import React from "react";
+import * as Yup from "yup";
 
 import {
   Autocomplete,
@@ -26,7 +27,7 @@ import {
   FormikProps,
   getIn,
 } from "formik";
-import { useAppSelector, useAppDispatch } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { IRecord } from "../../_interfaces/record.interface";
 import FormikControl from "../customizeComponents/FormikForm/FormikControler/FormikControl";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -36,12 +37,6 @@ import { DesktopDatePicker } from "@mui/x-date-pickers";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import {
-  addRecord,
-  getAllRecords,
-  updateRecord,
-} from "../../store/recordsSlice";
-import { msg } from "../../store/snackBardSlice";
 
 dayjs.locale("he");
 
@@ -49,13 +44,20 @@ interface Props {
   open: boolean;
   handelClose: () => void;
   data?: IRecord;
+  handelAddNewRecords?: (newDatew: IRecord) => void;
+  handelEditRecords: (newDatew: IRecord) => void;
 }
-const ReportsAction = ({ data, open, handelClose }: Props) => {
+const ReportsAction = ({
+  data,
+  open,
+  handelClose,
+  handelAddNewRecords,
+  handelEditRecords,
+}: Props) => {
   const { activeEmployees, employees } = useAppSelector(
     (state) => state.employee
   );
   const { projects } = useAppSelector((state) => state.projects);
-  const dispatch = useAppDispatch();
   const initialValues: IRecord =
     data != undefined
       ? {
@@ -76,7 +78,9 @@ const ReportsAction = ({ data, open, handelClose }: Props) => {
           notes: data.notes,
         }
       : {
-          date: dayjs().format(),
+          date: dayjs(localStorage.getItem("pmr_savedDate")).format(
+            "YYYY-MM-DD HH:mm:ss"
+          ),
           employeeId: "",
           projectId: [{ projectId: "", notes: "" }],
           startAt: dayjs()
@@ -90,8 +94,18 @@ const ReportsAction = ({ data, open, handelClose }: Props) => {
             .set("second", 0)
             .toDate(),
           notes: "",
-          // projectNotes: [{ projectId: "", notes: "" }],
         };
+
+  const validationSchema = Yup.object({
+    date: Yup.string().required("תאריך חובה"),
+    employeeId: Yup.array(Yup.number().required()).required("בחירת עובד חובה"),
+    projectId: Yup.array().of(
+      Yup.object().shape({
+        projectId: Yup.number().required("בחירת מיקום עבודה חובה"),
+        notes: Yup.string(),
+      })
+    ),
+  });
 
   // const validationSchema ;
   const handelOnSubmit = (values: IRecord) => {
@@ -101,24 +115,10 @@ const ReportsAction = ({ data, open, handelClose }: Props) => {
         .toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" })
         .replace(/\D/g, "-"),
     };
-
+    console.log(newData);
     data
-      ? dispatch(updateRecord(newData))
-          .unwrap()
-          .then(() => {
-            dispatch(getAllRecords({}));
-            dispatch(msg({ msg: "עדכון דיווח בהצלחה", type: "success" }));
-            handelClose();
-          })
-          .catch((error: any) => dispatch(msg({ msg: error, type: "error" })))
-      : dispatch(addRecord(newData))
-          .unwrap()
-          .then(() => {
-            dispatch(getAllRecords({}));
-            dispatch(msg({ msg: "הוספת דיווח בהצלחה", type: "success" }));
-            handelClose();
-          })
-          .catch((error: any) => dispatch(msg({ msg: error, type: "error" })));
+      ? handelEditRecords(newData)
+      : handelAddNewRecords != undefined && handelAddNewRecords(newData);
   };
 
   return (
@@ -144,9 +144,8 @@ const ReportsAction = ({ data, open, handelClose }: Props) => {
         >
           <Formik
             initialValues={initialValues}
-            // validationSchema={validationSchema}
+            validationSchema={validationSchema}
             onSubmit={handelOnSubmit}
-            validateOnChange={false}
             enableReinitialize={data ? true : false}
           >
             {({ values, isValid }: FormikProps<IRecord>) => {
@@ -181,6 +180,12 @@ const ReportsAction = ({ data, open, handelClose }: Props) => {
                                       label="תאריך דיווח"
                                       value={value}
                                       onChange={(val) => {
+                                        localStorage.setItem(
+                                          "pmr_savedDate",
+                                          dayjs(val).format(
+                                            "YYYY-MM-DD HH:mm:ss"
+                                          )
+                                        );
                                         setFieldValue(
                                           "date",
                                           new Date(val)
@@ -248,15 +253,23 @@ const ReportsAction = ({ data, open, handelClose }: Props) => {
                         justifyContent="space-between"
                       >
                         <FieldArray name="projectId">
-                          {(fieldArrayProps) => {
+                          {(fieldArrayProps: any) => {
                             const { push, remove, form } = fieldArrayProps;
                             const { values, errors, touched, setFieldValue } =
                               form;
+
                             const { projectId } = values;
-                            // console.log(values);
                             return (
                               <>
                                 {projectId.map((pn: any, index: number) => {
+                                  const error = getIn(
+                                    form.errors,
+                                    `projectId.${index}.projectId`
+                                  );
+                                  const touch = getIn(
+                                    form.touched,
+                                    `projectId.${index}.projectId`
+                                  );
                                   return (
                                     <Stack
                                       direction="column"
@@ -314,9 +327,13 @@ const ReportsAction = ({ data, open, handelClose }: Props) => {
                                           />
 
                                           <FormHelperText
-                                            id={"projectId"}
+                                            id={`projectId.${index}.projectId`}
                                             error
-                                          ></FormHelperText>
+                                          >
+                                            {typeof error === "string" && touch
+                                              ? error.toString()
+                                              : null}
+                                          </FormHelperText>
                                         </FormControl>
 
                                         <FormControl variant="outlined">
@@ -380,13 +397,6 @@ const ReportsAction = ({ data, open, handelClose }: Props) => {
                             );
                           }}
                         </FieldArray>
-                        {/* <FormikControl
-                          control="input"
-                          type="text"
-                          label="הערות"
-                          name="projectNotes"
-                          fullWidth={true}
-                        /> */}
                       </Stack>
                     </Grid>
                     <Grid item xs={12}>
@@ -401,14 +411,12 @@ const ReportsAction = ({ data, open, handelClose }: Props) => {
                           type="date"
                           label="שעת התחלה"
                           name="startAt"
-                          // fullWidth={true}
                         />
                         <FormikControl
                           control="timePicker"
                           type="date"
                           label="שעת סיום"
                           name="endAt"
-                          // fullWidth={true}
                         />
                       </Stack>
                       <Stack spacing={1}>

@@ -1,38 +1,23 @@
 import { styled } from "@mui/system";
 import {
   AppBar,
-  Avatar,
-  Badge,
   Box,
   IconButton,
-  InputBase,
-  Menu,
-  MenuItem,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import { Plumbing, Mail, Notifications } from "@mui/icons-material";
+import { Plumbing } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { grey } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../store/hooks";
 import { logout } from "../store/authSlice";
-
+import LogoutIcon from "@mui/icons-material/Logout";
 const StyledToolBar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
-}));
-
-const Search = styled("div")(({ theme }) => ({
-  display: "none",
-  backgroundColor: "white",
-  padding: "0 10px",
-  borderRadius: theme.shape.borderRadius,
-  width: "40%",
-  [theme.breakpoints.up("sm")]: {
-    display: "flex",
-  },
 }));
 
 const ActionsBar = styled(Box)(({ theme }) => ({
@@ -45,7 +30,6 @@ interface INavBarProps {
   handleDrawerToggle: () => void;
 }
 const Navbar = ({ handleDrawerToggle }: INavBarProps) => {
-  const [open, setOpen] = useState<boolean>(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -87,45 +71,13 @@ const Navbar = ({ handleDrawerToggle }: INavBarProps) => {
             מערכת לניהול פרוייקטים ועובדים
           </Typography>
         </Box>
-        <Search>
-          <InputBase placeholder="חיפוש.." />
-        </Search>
+
         <ActionsBar>
-          <Badge badgeContent={4} color="error">
-            <Mail />
-          </Badge>
-          <Badge badgeContent={4} color="error">
-            <Notifications />
-          </Badge>
-          <Avatar
-            sx={{
-              width: 30,
-              height: 30,
-              alignItems: "center",
-              cursor: "pointer",
-            }}
-            alt="Remy Sharp"
-            src="../../assets/images/profile/user.svg"
-            onClick={(e: any) => setOpen(true)}
-          />
-          <Menu
-            id="demo-positioned-menu"
-            aria-labelledby="demo-positioned-button"
-            open={open}
-            onClose={(e) => setOpen(false)}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
-          >
-            <MenuItem>Profile</MenuItem>
-            <MenuItem>My account</MenuItem>
-            <MenuItem onClick={logoutUser}>Logout</MenuItem>
-          </Menu>
+          <Tooltip title="התנתק">
+            <IconButton onClick={logoutUser}>
+              <LogoutIcon sx={{ color: "white" }} />
+            </IconButton>
+          </Tooltip>
         </ActionsBar>
       </StyledToolBar>
     </AppBar>

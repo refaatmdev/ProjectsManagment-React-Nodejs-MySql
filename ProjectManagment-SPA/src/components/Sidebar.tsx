@@ -10,13 +10,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import React, {
-  forwardRef,
-  ForwardRefExoticComponent,
-  RefAttributes,
-  useEffect,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 import { styled } from "@mui/system";
 import { sideBarWidth } from "../Layout/config";
 import { grey } from "@mui/material/colors";
@@ -43,6 +37,12 @@ const Sidebar = ({ handleDrawerToggle, mobileOpen }: ISideBarProps) => {
 
   useEffect(() => {
     setOpen(!matchDownMD);
+    const currentRoute = document.location.pathname.toString().split("/").pop();
+    menuItems.map((el) => {
+      el.link.split("/").pop() === currentRoute
+        ? setSelectedIndex(el.id)
+        : null;
+    });
   }, [matchDownMD]);
 
   const handleListItemClick = (event: any, index: number) => {
@@ -146,30 +146,3 @@ const Sidebar = ({ handleDrawerToggle, mobileOpen }: ISideBarProps) => {
 };
 
 export default Sidebar;
-
-{
-  /* <MenuItem sx={{ height: "50px" }}>
-            <ListItemIcon>
-              <PrecisionManufacturingIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>פרוייקטים</ListItemText>
-          </MenuItem>
-          <MenuItem sx={{ height: "50px" }}>
-            <ListItemIcon>
-              <PrecisionManufacturingIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>עובדים</ListItemText>
-          </MenuItem>
-          <MenuItem sx={{ height: "50px" }}>
-            <ListItemIcon>
-              <HourglassBottomIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>דיווח שעות עבודה</ListItemText>
-          </MenuItem>
-          <MenuItem sx={{ height: "50px" }}>
-            <ListItemIcon>
-              <AttachMoneyIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>דוחות שכר</ListItemText>
-          </MenuItem> */
-}

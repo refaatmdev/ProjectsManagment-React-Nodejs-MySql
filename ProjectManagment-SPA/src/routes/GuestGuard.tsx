@@ -7,8 +7,11 @@ const GuestGuard = ({ children }: PropsWithChildren) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log(isLoggedIn);
+
     if (isLoggedIn) {
-      navigate("/dashboard", { replace: true });
+      console.log(isLoggedIn);
+      navigate("/Projects", { replace: true });
     }
   }, [isLoggedIn, navigate]);
 

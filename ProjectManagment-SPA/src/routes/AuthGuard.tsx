@@ -3,49 +3,43 @@ import React, { PropsWithChildren, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   API_URL,
+  getLoginStatus,
   getUser,
   selectIsLoggedIn,
   selectUser,
 } from "../store/authSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 
-const getLoginStatus = async () => {
+const getLoginStatusDirectly = async () => {
   const response = await axios.get(API_URL + "/loginStatus");
   return response.data;
 };
 
 const AuthGuard = ({ children }: PropsWithChildren) => {
-  // const isLoggedIn = useAppSelector(selectIsLoggedIn);
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const user = useAppSelector(selectUser);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    let isLoggedIn: boolean;
+    let isLoggedInDirectrly: boolean;
 
     const redirectLoggedOutUser = async () => {
       try {
-        isLoggedIn = await getLoginStatus();
-        console.log(isLoggedIn);
-        if (isLoggedIn && user === null) {
-          dispatch(getUser());
-        }
+        dispatch(getLoginStatus());
+        isLoggedInDirectrly = await getLoginStatusDirectly();
       } catch (error: any) {
         console.log(error.message);
       }
-      // console.log("isLoggedIn", isLoggedIn);
-      // if (isLoggedIn && user === null) {
-      //   await dispatch(getUser());
-      // }
-      if (!isLoggedIn) {
+      if (isLoggedIn && user === null) {
+        await dispatch(getUser());
+      }
+      if (!isLoggedInDirectrly) {
         navigate("auth/login");
         return;
       }
     };
     redirectLoggedOutUser();
-    // if (!isLoggedIn) {
-    //   navigate("auth/login", { replace: true });
-    // }
   }, [navigate]);
 
   return <>{children}</>;

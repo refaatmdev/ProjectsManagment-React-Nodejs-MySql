@@ -6,7 +6,7 @@ import FormikControl from "../customizeComponents/FormikForm/FormikControler/For
 import { Button, Grid, Stack } from "@mui/material";
 import { IEmployee } from "../../_interfaces/emplyee.interface";
 import { useAppDispatch } from "../../store/hooks";
-import { editEmployee, getEmployees } from "../../store/employeesSlice";
+import { editEmployee } from "../../store/employeesSlice";
 import { msg } from "../../store/snackBardSlice";
 
 interface EditProps {

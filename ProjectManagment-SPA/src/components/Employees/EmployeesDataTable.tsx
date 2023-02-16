@@ -10,6 +10,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { IEmployee } from "../../_interfaces/emplyee.interface";
@@ -20,6 +21,8 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useAppDispatch } from "../../store/hooks";
 import { deleteEmployee } from "../../store/employeesSlice";
+import dayjs from "dayjs";
+import CurrencyFormat from "react-currency-format";
 
 const MySwal = withReactContent(Swal);
 
@@ -111,7 +114,21 @@ const EmployeesDataTable = ({
                   </Link>
                 </TableCell>
                 <TableCell>{row.phone}</TableCell>
-                <TableCell align="center">{row.dailyWage}</TableCell>
+                <TableCell align="center">
+                  <Stack direction="column">
+                    {row.dailyWage && (
+                      <CurrencyFormat
+                        value={row.dailyWage}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                        prefix={"₪"}
+                      />
+                    )}
+                    <Typography variant="caption">
+                      החל מתאריך : {dayjs(row.startFromDate).format("YYYY-MM")}
+                    </Typography>
+                  </Stack>{" "}
+                </TableCell>
                 <TableCell>{row.bankAccount}</TableCell>
                 <TableCell align="right">{row.bankBranch}</TableCell>
                 <TableCell align="center">

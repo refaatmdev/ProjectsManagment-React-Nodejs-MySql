@@ -83,7 +83,7 @@ LIMIT 1) AS startFromDate
  ${serchV}
  ${employee}
  GROUP BY id 
-  order by dailyWage
+  order by isActive
 desc
 ${limitQuery}
   `;

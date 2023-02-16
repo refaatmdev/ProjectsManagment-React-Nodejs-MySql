@@ -85,7 +85,7 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (isSuccess && isLoggedIn) {
-      navigate("/Dashboard");
+      navigate("/Projects");
     }
   }, [isLoggedIn, isSuccess, dispatch, navigate, isError]);
 

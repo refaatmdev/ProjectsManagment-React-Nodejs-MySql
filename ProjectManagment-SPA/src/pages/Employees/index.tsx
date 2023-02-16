@@ -1,19 +1,11 @@
 import styled from "@emotion/styled";
-import {
-  Button,
-  Grid,
-  Pagination,
-  Stack,
-  TablePagination,
-  Typography,
-} from "@mui/material";
+import { Button, Grid, Pagination, Stack } from "@mui/material";
 import { Box } from "@mui/system";
 import React, {
   ChangeEvent,
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import MainCard from "../../components/customizeComponents/MainCard";
@@ -49,7 +41,6 @@ const Employees = () => {
   const [show, setShow] = useState(false);
   const [type, setType] = useState("");
   const [notActive, setNotAtive] = useState(0);
-  // const shouldload = useRef<boolean>(true);
 
   useEffect(() => {
     dispatch(

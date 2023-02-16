@@ -19,8 +19,13 @@ import AddReports from "../Reports/AddReports";
 import { IRecord } from "../../_interfaces/record.interface";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { deleteRecord, getAllRecords } from "../../store/recordsSlice";
+import {
+  deleteRecord,
+  getAllRecords,
+  updateRecord,
+} from "../../store/recordsSlice";
 import { useAppDispatch } from "../../store/hooks";
+import { msg } from "../../store/snackBardSlice";
 
 const MySwal = withReactContent(Swal);
 
@@ -59,9 +64,26 @@ export const EmployeeTimeSheetDataTable = ({
     setOpen(false);
   }, [open]);
 
+  const handelEditRecords = useCallback((newData: IRecord) => {
+    console.log(newData);
+    dispatch(updateRecord(newData))
+      .unwrap()
+      .then(() => {
+        dispatch(msg({ msg: "עדכון דיווח בהצלחה", type: "success" }));
+        handelClose();
+      })
+      .catch((error: any) => dispatch(msg({ msg: error, type: "error" })));
+  }, []);
+
   const reportMemo = useMemo(
     () => (
-      <AddReports data={selectedRecord} open={open} handelClose={handelClose} />
+      <AddReports
+        handelEditRecords={handelEditRecords}
+        handelAddNewRecords={undefined}
+        data={selectedRecord}
+        open={open}
+        handelClose={handelClose}
+      />
     ),
     [open]
   );

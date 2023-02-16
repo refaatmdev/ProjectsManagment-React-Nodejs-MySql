@@ -4,7 +4,7 @@ import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 export const menuItems = [
-  { id: 1, label: "דף הבית", icon: HomeIcon, link: "/Dashboard" },
+  // { id: 1, label: "דף הבית", icon: HomeIcon, link: "/Dashboard" },
   {
     id: 2,
     label: "פרוייקטים",

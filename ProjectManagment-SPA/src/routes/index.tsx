@@ -27,11 +27,9 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-
-        path: "Dashboard",
         element: (
           <Suspense fallback={<Loader />}>
-            <Dashboard />
+            <Projects />{" "}
           </Suspense>
         ),
       },
