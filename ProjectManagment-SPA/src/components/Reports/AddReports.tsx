@@ -63,7 +63,7 @@ const ReportsAction = ({
       ? {
           id: data.id,
           date: dayjs(data.date).format(),
-          employeeId: data.employeeId,
+          employeeId: [data.employeeId],
           projectId: data.projectId,
           startAt: dayjs(data.startAt)
             .set("hour", 7)
@@ -115,9 +115,11 @@ const ReportsAction = ({
         .toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" })
         .replace(/\D/g, "-"),
     };
-    console.log(newData);
+    const updatedData = data
+      ? { ...newData, employeeId: newData.employeeId[0] }
+      : newData;
     data
-      ? handelEditRecords(newData)
+      ? handelEditRecords(updatedData)
       : handelAddNewRecords != undefined && handelAddNewRecords(newData);
   };
 

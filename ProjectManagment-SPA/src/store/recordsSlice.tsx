@@ -140,6 +140,7 @@ export const deleteRecord = createAsyncThunk(
 export const getMafreaot = createAsyncThunk(
   "records/getMafreaot",
   async (args: IGetRecords, { rejectWithValue, dispatch, signal }) => {
+    console.log(args.month);
     const {
       recordsPerPage = 31,
       currentPage = 1,

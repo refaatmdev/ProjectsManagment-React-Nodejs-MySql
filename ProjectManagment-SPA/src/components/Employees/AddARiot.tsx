@@ -6,17 +6,11 @@ import FormikControl from "../customizeComponents/FormikForm/FormikControler/For
 import { Button, Grid, Stack } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import { addEmployeeProps } from "./AddEmployee";
-import { updateDailyWage } from "../../store/employeesSlice";
 
 import dayjs from "dayjs";
 import { msg } from "../../store/snackBardSlice";
 import { IMafrea } from "../../_interfaces/mafrea.interfac";
-import {
-  addMafrea,
-  getMafreaot,
-  updateMafrea,
-  updateRecord,
-} from "../../store/recordsSlice";
+import { addMafrea, getMafreaot, updateMafrea } from "../../store/recordsSlice";
 
 interface addRiotProps extends addEmployeeProps {
   data?: IMafrea;
@@ -71,7 +65,7 @@ const AddARiot = ({ closeModal, data }: addRiotProps) => {
       ? dispatch(updateMafrea(mafreaData))
           .unwrap()
           .then(() => {
-            dispatch(getMafreaot({}));
+            dispatch(getMafreaot({ month: createdAt }));
             dispatch(msg({ msg: "עדכון דיווח בהצלחה", type: "success" }));
             closeModal();
           })
@@ -79,7 +73,7 @@ const AddARiot = ({ closeModal, data }: addRiotProps) => {
       : dispatch(addMafrea(mafreaData))
           .unwrap()
           .then(() => {
-            dispatch(getMafreaot({}));
+            dispatch(getMafreaot({ month: createdAt }));
             dispatch(msg({ msg: "הוספת מפרעה בוצעה בהצלחה", type: "success" }));
             closeModal();
           })

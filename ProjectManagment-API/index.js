@@ -5,12 +5,14 @@ const cookieParser = require("cookie-parser");
 const api = express();
 const cors = require("cors");
 const logger = require("./logger");
+const cron = require("node-cron");
 
 const auth = require("./routes/auth");
 const projects = require("./routes/projects");
 const employee = require("./routes/employee");
 const timesSheet = require("./routes/timeSheets");
 const company = require("./routes/company");
+const { createBackUp } = require("./database/backup");
 
 logger.info("Server started!");
 
@@ -40,7 +42,7 @@ api.use(bodyParser.json());
 
 api.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:3000", "http://localhost:3001"],
     credentials: true,
   })
 );
@@ -54,6 +56,10 @@ api.use("/projects", projects);
 api.use("/employee", employee);
 api.use("/timesSheet", timesSheet);
 api.use("/company", company);
+
+cron.schedule("0 1 * * *", function () {
+  createBackUp();
+});
 
 api.use((error, req, res, next) => {
   console.log("error handler", error);

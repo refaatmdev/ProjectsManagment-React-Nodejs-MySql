@@ -98,6 +98,7 @@ const Reports = () => {
 
   const handelEditRecords = useCallback((newData: IRecord) => {
     console.log(newData);
+    console.log(currentMonth);
     dispatch(updateRecord(newData))
       .unwrap()
       .then(() => {
@@ -143,7 +144,6 @@ const Reports = () => {
           "YYYY-MM-DD HH:mm:ss"
         )
       );
-      // setCurrentMonth(dayjs(e).format("YYYY-MM-DD HH:mm:ss"));
     },
     [currentMonth]
   );
