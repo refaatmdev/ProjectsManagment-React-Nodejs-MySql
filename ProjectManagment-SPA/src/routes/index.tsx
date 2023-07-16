@@ -3,7 +3,7 @@ import { lazy, Suspense } from "react";
 import AuthGuard from "./../routes/AuthGuard";
 import Loader from "./../routes/Loader";
 import GuestGuard from "./../routes/GuestGuard";
-import { createBrowserRouter } from "react-router-dom";
+import { createHashRouter } from "react-router-dom";
 import MainLayout from "../Layout/MainLayout";
 const Dashboard = lazy(() => import("./../pages/Dashboard"));
 const ErrorPage = lazy(() => import("./../pages/ErrorPage"));
@@ -15,7 +15,7 @@ const Reports = lazy(() => import("./../pages/Reports"));
 const Salaries = lazy(() => import("./../pages/Salaries"));
 const Login = lazy(() => import("./../pages/Auth/Login"));
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: "/",
     element: (
